@@ -1,14 +1,44 @@
 package com.reservaquadraoficial.reservaquadrateste;
 
+import com.reservaquadraoficial.reservaquadrateste.HelloApplication;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
+
+import java.io.IOException;
 
 public class HelloController {
     @FXML
-    private Label welcomeText;
+    public void onCadastrarReservaClicked() {
+        try {
+            HelloApplication.criarTela("cadastrar-reserva-view.fxml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @FXML
-    protected void onHelloButtonClick() {
-        welcomeText.setText("Welcome to JavaFX Application!");
+    public void onBuscarReservaClicked() {
+        try {
+            HelloApplication.criarTela("buscar-reserva-view.fxml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void onEditarReservaClicked() {
+        try {
+            HelloApplication.criarTela("editar-reserva-view.fxml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void onExcluirReservaClicked() {
+        try {
+            HelloApplication.criarTela("excluir-reserva-view.fxml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

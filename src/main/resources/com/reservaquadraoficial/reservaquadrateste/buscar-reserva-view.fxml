@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="CENTER" spacing="20" style="-fx-padding: 30; -fx-background-color: #f5f5f5;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.reservaquadraoficial.reservaquadrateste.BuscarReservaController">
+
+    <Label style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2a5058;" text="Buscar Reservas" />
+
+    <GridPane hgap="15" style="-fx-padding: 20; -fx-background-color: white; -fx-background-radius: 10;" vgap="15">
+        <columnConstraints>
+            <ColumnConstraints halignment="RIGHT" minWidth="100" />
+            <ColumnConstraints minWidth="250" />
+        </columnConstraints>
+
+        <!-- Filtro por Data -->
+        <Label style="-fx-font-weight: bold;" text="Filtrar por Data:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+        <DatePicker fx:id="datePicker" style="-fx-pref-height: 35;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+        <!-- Filtro por Nome -->
+        <Label style="-fx-font-weight: bold;" text="Filtrar por Nome:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+        <TextField fx:id="txtNome" style="-fx-pref-height: 35;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+        <!-- Filtro por Esporte -->
+        <Label style="-fx-font-weight: bold;" text="Filtrar por Esporte:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+        <ComboBox fx:id="cbEsporte" style="-fx-pref-height: 35;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+      <rowConstraints>
+         <RowConstraints />
+         <RowConstraints />
+         <RowConstraints />
+      </rowConstraints>
+    </GridPane>
+
+    <HBox alignment="CENTER" spacing="20">
+        <Button fx:id="btnBuscar" onAction="#onBtnBuscar" style="-fx-font-size: 14; -fx-pref-width: 120; -fx-pref-height: 40; -fx-background-color: #2196F3; -fx-text-fill: white;" text="Buscar" />
+        <Button fx:id="btnLimpar" onAction="#onBtnLimpar" style="-fx-font-size: 14; -fx-pref-width: 120; -fx-pref-height: 40; -fx-background-color: #ff9800; -fx-text-fill: white;" text="Limpar" />
+        <Button onAction="#onEditarReserva" prefHeight="40.0" style="-fx-font-size: 14; -fx-pref-width: 120; -fx-background-color: #2196F3; -fx-text-fill: white;" text="Editar" />
+    </HBox>
+
+    <!-- Tabela de Resultados -->
+    <TableView fx:id="tableView" style="-fx-pref-height: 300; -fx-pref-width: 700;">
+        <columns>
+            <TableColumn fx:id="colNome" prefWidth="150" text="Nome" />
+            <TableColumn fx:id="colEsporte" prefWidth="100" text="Esporte" />
+            <TableColumn fx:id="colData" prefWidth="100" text="Data" />
+            <TableColumn fx:id="colHorario" prefWidth="120" text="Horário" />
+        </columns>
+    </TableView>
+</VBox>
