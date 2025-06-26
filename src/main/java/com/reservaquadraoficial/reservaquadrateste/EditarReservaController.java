@@ -5,7 +5,7 @@ import com.reservaquadraoficial.reservaquadrateste.model.dao.ReservaDAO;
 import com.reservaquadraoficial.reservaquadrateste.model.entities.Reserva;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-        import javafx.stage.Stage;
+import javafx.stage.Stage;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -50,7 +50,6 @@ public class EditarReservaController {
             cbEsporte.setValue(reservaSelecionada.getEsporte());
             datePicker.setValue(reservaSelecionada.getData());
 
-            // Formatar horário para o ComboBox
             String horarioFormatado = String.format("%02d:%02d - %02d:%02d",
                     reservaSelecionada.getHoraInicio().getHour(),
                     reservaSelecionada.getHoraInicio().getMinute(),
@@ -65,6 +64,15 @@ public class EditarReservaController {
     private void onBtnSalvar() {
         try {
             if (validarCampos()) {
+                String[] horarios = cbHorario.getValue().split(" - ");
+                LocalTime inicio = LocalTime.parse(horarios[0]);
+                LocalTime fim = LocalTime.parse(horarios[1]);
+
+                if (dao.existeConflito(datePicker.getValue(), inicio, fim, reservaSelecionada.getId())) {
+                    mostrarAlerta("Conflito", "Já existe outra reserva neste horário", Alert.AlertType.WARNING);
+                    return;
+                }
+
                 atualizarReserva();
                 dao.atualizar(reservaSelecionada);
                 fecharJanela();
@@ -81,22 +89,32 @@ public class EditarReservaController {
     }
 
     private boolean validarCampos() {
-        if (txtNome.getText().isEmpty()) {
-            mostrarAlerta("Aviso", "Informe o nome do responsável", Alert.AlertType.WARNING);
-            return false;
-        }
-        if (cbEsporte.getValue() == null) {
-            mostrarAlerta("Aviso", "Selecione um esporte", Alert.AlertType.WARNING);
-            return false;
-        }
+        StringBuilder erros = new StringBuilder();
+
         if (datePicker.getValue() == null) {
-            mostrarAlerta("Aviso", "Selecione uma data válida", Alert.AlertType.WARNING);
-            return false;
+            erros.append("• Selecione uma data válida\n");
+        } else if (datePicker.getValue().isBefore(LocalDate.now())) {
+            erros.append("• Data não pode ser no passado\n");
         }
+
         if (cbHorario.getValue() == null) {
-            mostrarAlerta("Aviso", "Selecione um horário disponível", Alert.AlertType.WARNING);
+            erros.append("• Selecione um horário disponível\n");
+        }
+
+        if (txtNome.getText() == null || txtNome.getText().trim().isEmpty()) {
+            erros.append("• Informe o nome do responsável\n");
+        }
+
+        if (cbEsporte.getValue() == null) {
+            erros.append("• Selecione um esporte\n");
+        }
+
+        if (erros.length() > 0) {
+            mostrarAlerta("Aviso", "Corrija os seguintes erros:\n\n" + erros.toString(),
+                    Alert.AlertType.WARNING);
             return false;
         }
+
         return true;
     }
 
@@ -105,7 +123,6 @@ public class EditarReservaController {
         reservaSelecionada.setEsporte(cbEsporte.getValue());
         reservaSelecionada.setData(datePicker.getValue());
 
-        // Extrair horário do formato "HH:mm - HH:mm"
         String[] horarios = cbHorario.getValue().split(" - ");
         reservaSelecionada.setHoraInicio(LocalTime.parse(horarios[0]));
         reservaSelecionada.setHoraFim(LocalTime.parse(horarios[1]));

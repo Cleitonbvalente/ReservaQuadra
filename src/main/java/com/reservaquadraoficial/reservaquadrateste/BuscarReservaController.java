@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BuscarReservaController {
 
@@ -37,12 +38,13 @@ public class BuscarReservaController {
         colNome.setCellValueFactory(new PropertyValueFactory<>("nomePessoa"));
         colEsporte.setCellValueFactory(new PropertyValueFactory<>("esporte"));
         colData.setCellValueFactory(new PropertyValueFactory<>("data"));
-        colHorario.setCellValueFactory(cellData -> {
-            Reserva reserva = cellData.getValue();
-            return javafx.beans.binding.Bindings.concat(
-                    reserva.getHoraInicio().toString(), " - ", reserva.getHoraFim().toString()
-            );
-        });
+        colHorario.setCellValueFactory(cellData ->
+                javafx.beans.binding.Bindings.concat(
+                        cellData.getValue().getHoraInicio().toString(),
+                        " - ",
+                        cellData.getValue().getHoraFim().toString()
+                )
+        );
 
         // Configurar ComboBox de esportes
         cbEsporte.getItems().addAll("Futebol", "Vôlei", "Basquete", "Handebol", "Tênis", "Todos");
@@ -59,21 +61,12 @@ public class BuscarReservaController {
             String nome = txtNome.getText().trim();
             String esporte = cbEsporte.getValue();
 
-            List<Reserva> reservas;
-
-            if (data != null) {
-                // Busca por data específica
-                reservas = dao.buscarPorData(data);
-            } else if (!nome.isEmpty()) {
-                // Busca por nome
-                reservas = dao.buscarPorNome(nome);
-            } else if (!esporte.equals("Todos")) {
-                // Busca por esporte
-                reservas = dao.buscarPorEsporte(esporte);
-            } else {
-                // Mostrar todas as reservas
-                reservas = dao.buscarTodos();
-            }
+            List<Reserva> reservas = dao.buscarTodos()
+                    .stream()
+                    .filter(r -> data == null || r.getData().equals(data))
+                    .filter(r -> nome.isEmpty() || r.getNomePessoa().toLowerCase().contains(nome.toLowerCase()))
+                    .filter(r -> esporte.equals("Todos") || r.getEsporte().equalsIgnoreCase(esporte))
+                    .collect(Collectors.toList());
 
             atualizarTabela(reservas);
 
@@ -90,6 +83,32 @@ public class BuscarReservaController {
         atualizarTabela(dao.buscarTodos());
     }
 
+    @FXML
+    private void onEditarReserva() {
+        Reserva reservaSelecionada = tableView.getSelectionModel().getSelectedItem();
+        if (reservaSelecionada != null) {
+            try {
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("editar-reserva-view.fxml"));
+                Stage stage = new Stage();
+                stage.setScene(new Scene(loader.load()));
+
+                EditarReservaController controller = loader.getController();
+                controller.setReservaSelecionada(reservaSelecionada);
+
+                stage.initModality(Modality.APPLICATION_MODAL);
+                stage.showAndWait();
+
+                atualizarTabela(dao.buscarTodos());
+
+            } catch (IOException e) {
+                mostrarAlerta("Erro", "Não foi possível abrir a tela de edição", Alert.AlertType.ERROR);
+            }
+        } else {
+            mostrarAlerta("Aviso", "Selecione uma reserva para editar", Alert.AlertType.WARNING);
+        }
+    }
+
     private void atualizarTabela(List<Reserva> reservas) {
         tableView.setItems(FXCollections.observableArrayList(reservas));
     }
@@ -100,31 +119,5 @@ public class BuscarReservaController {
         alert.setHeaderText(null);
         alert.setContentText(mensagem);
         alert.showAndWait();
-    }
-    @FXML
-    private void onEditarReserva() {
-        Reserva reservaSelecionada = tableView.getSelectionModel().getSelectedItem();
-        if (reservaSelecionada != null) {
-            try {
-                FXMLLoader loader = new FXMLLoader(
-                        HelloApplication.class.getResource("editar-reserva-view.fxml"));
-                Stage stage = new Stage();
-                stage.setScene(new Scene(loader.load()));
-
-                EditarReservaController controller = loader.getController();
-                controller.setReservaSelecionada(reservaSelecionada);
-
-                stage.initModality(Modality.APPLICATION_MODAL);
-                stage.showAndWait();
-
-                // Atualizar tabela após edição
-                atualizarTabela(dao.buscarTodos());
-
-            } catch (IOException e) {
-                mostrarAlerta("Erro", "Não foi possível abrir a tela de edição", Alert.AlertType.ERROR);
-            }
-        } else {
-            mostrarAlerta("Aviso", "Selecione uma reserva para editar", Alert.AlertType.WARNING);
-        }
     }
 }

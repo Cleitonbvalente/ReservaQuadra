@@ -15,4 +15,5 @@ public interface ReservaDAO {
     List<Reserva> buscarPorEsporte(String esporte);
     List<Reserva> buscarPorNome(String nome);
     List<LocalTime[]> getHorariosDisponiveis(LocalDate data);
+    boolean existeConflito(LocalDate data, LocalTime inicio, LocalTime fim, Integer idExcluir);
 }

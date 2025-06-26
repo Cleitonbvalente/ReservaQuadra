@@ -230,6 +230,38 @@ public class ReservaDAOJDBC implements ReservaDAO {
         return disponiveis;
     }
 
+    @Override
+    public boolean existeConflito(LocalDate data, LocalTime inicio, LocalTime fim, Integer idExcluir) {
+        String sql = "SELECT COUNT(*) FROM reservas WHERE data = ? AND " +
+                "((hora_inicio < ? AND hora_fim > ?) OR " +
+                "(hora_inicio < ? AND hora_fim > ?) OR " +
+                "(hora_inicio >= ? AND hora_fim <= ?))";
+
+        if (idExcluir != null) {
+            sql += " AND id != ?";
+        }
+
+        try (PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setDate(1, Date.valueOf(data));
+            st.setTime(2, Time.valueOf(fim));
+            st.setTime(3, Time.valueOf(inicio));
+            st.setTime(4, Time.valueOf(fim));
+            st.setTime(5, Time.valueOf(inicio));
+            st.setTime(6, Time.valueOf(inicio));
+            st.setTime(7, Time.valueOf(fim));
+
+            if (idExcluir != null) {
+                st.setInt(8, idExcluir);
+            }
+
+            try (ResultSet rs = st.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao verificar conflito de horário", e);
+        }
+    }
+
     private Reserva instanciarReserva(ResultSet rs) throws SQLException {
         Reserva reserva = new Reserva();
         reserva.setId(rs.getInt("id"));
